@@ -1,10 +1,12 @@
 package hardmode;
 
+import java.awt.Color;
 import java.io.File;
 
 import processing.app.Base;
 import processing.app.Mode;
 import processing.app.Platform;
+import processing.app.syntax.TokenMarker;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
@@ -12,26 +14,6 @@ import processing.mode.java.JavaMode;
 
 public class HardMode extends JavaMode
 {
-	File			srcFolder;
-
-	/**
-	 * The folder containing the pre-processed .java files in their compiled
-	 * .class form
-	 */
-	File			binFolder;
-
-	/**
-	 * Folder where REPL Mode's reference is stored
-	 */
-	protected File	replReference;
-
-	/**
-	 * Describes whether or not the sketch is running.
-	 * 
-	 * @deprecated Not really used anywhere
-	 */
-	boolean			isRunning;
-
 	public HardMode(Base base, File folder)
 	{
 		super(base, folder);
@@ -40,16 +22,35 @@ public class HardMode extends JavaMode
 		examplesFolder = new File(javamodeFolder, "examples");
 		librariesFolder = new File(javamodeFolder, "libraries");
 		referenceFolder = new File(javamodeFolder, "reference");
+	}
 
-		replReference = new File(folder, "reference");
+	public Color getColor(String attribute)
+	{
+		String myColor = "header.tab.selected.color";
+		if (
+				attribute.equals("header.tab.unselected.color")
+				||
+				attribute.equals("header.text.unselected.color")
+				||
+				attribute.equals("header.text.selected.color")
+				
+				)
+			
+			attribute = myColor;
 
-		srcFolder = null;
-		binFolder = null;
-		isRunning = false;
-		
-		
-		
-		
+		return super.getColor(attribute);
+	}
+
+	@Override
+	protected TokenMarker createTokenMarker()
+	{
+		return new HardTokenMarker();
+	}
+
+	@Override
+	public TokenMarker getTokenMarker()
+	{
+		return super.getTokenMarker();
 	}
 
 	@Override

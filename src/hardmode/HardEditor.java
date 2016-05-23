@@ -1,5 +1,13 @@
 package hardmode;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JMenu;
+import javax.swing.JPanel;
+
 import processing.app.Base;
 import processing.app.Mode;
 import processing.app.syntax.JEditTextArea;
@@ -7,25 +15,128 @@ import processing.app.syntax.PdeTextAreaDefaults;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorHeader;
 import processing.app.ui.EditorState;
+import processing.app.ui.EditorToolbar;
 import processing.mode.java.JavaEditor;
+import processing.mode.java.pdex.Problem;
 
 public class HardEditor extends JavaEditor
 {
-	private static final long serialVersionUID = 51211108987282724L;
+	private static final long	serialVersionUID	= 51211108987282724L;
+
+	Timer						sketchModifiedTimer;
 
 	protected HardEditor(Base base, String path, EditorState state, Mode mode) throws EditorException
 	{
 		super(base, path, state, mode);
+
 		this.textarea.setRightClickPopup(null);
 		this.clearText();
 		this.setTitle("");
+		this.getToolMenu().removeAll();
+		sketch.setModified(false);
+
+		JPanel panel = (JPanel) getContentPane();
+		panel.setTransferHandler(null);
+
+		sketchModifiedTimer = new Timer();
+		sketchModifiedTimer.scheduleAtFixedRate(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				sketch.setModified(false);
+			}
+		}, 1000, 200);
 	}
-	
-	
+
+	@Override
+	public EditorToolbar createToolbar()
+	{
+		return new HardToolbar(this);
+	}
+
+	@Override
+	public void updateErrorTable(List<Problem> problems)
+	{
+		errorTable.clearRows();
+	}
+
+	@Override
+	public List<Problem> findProblems(int line)
+	{
+		return new ArrayList<Problem>();
+	}
+
+	@Override
+	public Problem findProblem(int line)
+	{
+		return null;
+	}
+
+	@Override
+	public void highlight(int tabIndex, int startOffset, int stopOffset)
+	{
+		// nope
+	}
+
+	@Override
+	public JMenu buildFileMenu()
+	{
+		JMenu menu = super.buildFileMenu();
+		menu.removeAll();
+		return menu;
+	}
+
+	@Override
+	protected JMenu buildEditMenu()
+	{
+		JMenu menu = super.buildEditMenu();
+		menu.removeAll();
+		return menu;
+	}
+
+	@Override
+	public JMenu buildSketchMenu()
+	{
+		JMenu menu = super.buildSketchMenu();
+		menu.removeAll();
+		return menu;
+	}
+
+	@Override
+	protected JMenu buildDebugMenu()
+	{
+		JMenu menu = super.buildDebugMenu();
+		menu.removeAll();
+		return menu;
+	}
+
+	@Override
+	public JMenu buildHelpMenu()
+	{
+		JMenu menu = super.buildHelpMenu();
+		menu.removeAll();
+		return menu;
+	}
+
 	@Override
 	public void setTitle(String title)
 	{
-		super.setTitle("Are you sure about this?");
+		super.setTitle("type once run once");
+	}
+
+	@Override
+	public void toggleDebug()
+	{
+		debugEnabled = false;
+		rebuildToolbar();
+		repaint();
+	}
+
+	@Override
+	protected void startTweakMode()
+	{
+		// nope
 	}
 
 	@Override
@@ -43,6 +154,7 @@ public class HardEditor extends JavaEditor
 	private void clearText()
 	{
 		this.textarea.setText("");
+		sketch.setModified(false);
 	}
 
 	@Override
